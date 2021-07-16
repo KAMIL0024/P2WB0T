@@ -22,7 +22,6 @@ package pl.kamil0024.status.statusy;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.RichPresence;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.Nullable;
 import pl.kamil0024.chat.listener.ChatListener;
 import pl.kamil0024.core.logger.Log;

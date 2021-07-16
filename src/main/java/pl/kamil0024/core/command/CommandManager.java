@@ -20,8 +20,6 @@
 package pl.kamil0024.core.command;
 
 import lombok.Getter;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.kamil0024.core.logger.Log;

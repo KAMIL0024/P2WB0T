@@ -23,7 +23,6 @@ import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import pl.kamil0024.core.Ustawienia;
 import pl.kamil0024.moderation.commands.MuteCommand;
 

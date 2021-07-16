@@ -26,7 +26,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
@@ -316,9 +315,17 @@ public class ComponentListener {
                             pv.add(e.getGuild().getMemberById(conf.getUserId()).getUser().openPrivateChannel().complete());
                         } catch (Exception ignored) { }
 
-                        pv.forEach(p -> p.sendMessage(Tlumaczenia.get("ticket.transcript", conf.getId())).complete());
+                        for (PrivateChannel p : pv) {
+                            try {
+                                p.sendMessage(Tlumaczenia.get("ticket.transcript", conf.getId())).complete();
+                            } catch (Exception ignored) { }
+                        }
                         for (String s : rawMessages) {
-                            pv.forEach(p -> p.sendMessage(s).complete());
+                            for (PrivateChannel p : pv) {
+                                try {
+                                    p.sendMessage(s).complete();
+                                } catch (Exception ignored) { }
+                            }
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();

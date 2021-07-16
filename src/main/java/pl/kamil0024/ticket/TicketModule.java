@@ -23,18 +23,10 @@ package pl.kamil0024.ticket;
 import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.sharding.ShardManager;
 import pl.kamil0024.core.database.TXTTicketDao;
-import pl.kamil0024.core.database.TicketDao;
 import pl.kamil0024.core.module.Modul;
 import pl.kamil0024.core.redis.RedisManager;
-import pl.kamil0024.core.util.EventWaiter;
 import pl.kamil0024.ticket.components.ComponentListener;
-import pl.kamil0024.ticket.config.TicketRedisManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TicketModule implements Modul {
 

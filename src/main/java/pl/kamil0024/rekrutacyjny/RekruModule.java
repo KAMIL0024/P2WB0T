@@ -22,7 +22,6 @@ package pl.kamil0024.rekrutacyjny;
 import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
-import net.dv8tion.jda.api.sharding.ShardManager;
 import pl.kamil0024.core.command.Command;
 import pl.kamil0024.core.command.CommandManager;
 import pl.kamil0024.core.module.Modul;

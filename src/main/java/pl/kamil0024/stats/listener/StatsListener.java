@@ -22,7 +22,6 @@ package pl.kamil0024.stats.listener;
 import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import pl.kamil0024.core.Ustawienia;
 import pl.kamil0024.stats.StatsModule;
 
