@@ -19,6 +19,7 @@
 
 package pl.kamil0024.logs.logger;
 
+import com.google.common.eventbus.Subscribe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -47,7 +48,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class Logger extends ListenerAdapter {
+public class Logger {
 
     private final MessageManager manager;
     private final ShardManager jda;
@@ -61,7 +62,7 @@ public class Logger extends ListenerAdapter {
         this.deletedMessagesDao = deletedMessagesDao;
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
         FakeMessage msg = manager.get(event.getMessageId());
         if (msg == null) return;
@@ -98,7 +99,7 @@ public class Logger extends ListenerAdapter {
 
     }
 
-    @Override
+    @Subscribe
     public void onMessageBulkDelete(MessageBulkDeleteEvent event) {
         for (String message : event.getMessageIds()) {
             FakeMessage msg = manager.get(message);
@@ -121,7 +122,7 @@ public class Logger extends ListenerAdapter {
 
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
         FakeMessage msg = manager.get(event.getMessage().getId());
 
@@ -181,7 +182,7 @@ public class Logger extends ListenerAdapter {
             Log.newError("Kanał do logów jest nullem!", getClass());
             return;
         }
-        channel.sendMessage(em.build()).queue();
+        channel.sendMessageEmbeds(em.build()).queue();
     }
 
     @AllArgsConstructor

@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class WulgarneStatusy extends ListenerAdapter {
+public class WulgarneStatusy {
 
     private final List<String> przeklenstwa;
 

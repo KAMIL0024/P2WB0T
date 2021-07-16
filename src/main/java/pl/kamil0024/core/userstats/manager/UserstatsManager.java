@@ -19,6 +19,7 @@
 
 package pl.kamil0024.core.userstats.manager;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -35,31 +36,24 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class UserstatsManager extends ListenerAdapter {
+public class UserstatsManager {
 
     public final RedisManager redisManager;
     public final UserstatsDao userstatsDao;
 
-    public final ShardManager api;
-
     private final Cache<UserstatsConfig.Config> config;
     private final Cache<VoiceStateConfig> voiceStateConfig;
 
-    public UserstatsManager(RedisManager redisManager, UserstatsDao userstatsDao, ShardManager api) {
+    public UserstatsManager(RedisManager redisManager, UserstatsDao userstatsDao) {
         this.redisManager = redisManager;
         this.userstatsDao = userstatsDao;
-        this.api = api;
-
-        this.config = redisManager.new CacheRetriever<UserstatsConfig.Config>() {
-        }.getCache(-1);
-        this.voiceStateConfig = redisManager.new CacheRetriever<VoiceStateConfig>() {
-        }.getCache(-1);
-
+        this.config = redisManager.new CacheRetriever<UserstatsConfig.Config>() {}.getCache(-1);
+        this.voiceStateConfig = redisManager.new CacheRetriever<VoiceStateConfig>() {}.getCache(-1);
         ScheduledExecutorService executorSche = Executors.newSingleThreadScheduledExecutor();
         executorSche.scheduleWithFixedDelay(this::load, 30, 30, TimeUnit.MINUTES);
     }
 
-    @Override
+    @Subscribe
     public void onMessageReceived(MessageReceivedEvent event) {
 
         if (!event.isFromGuild() || event.getAuthor().isBot()) return;

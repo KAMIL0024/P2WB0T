@@ -19,6 +19,8 @@
 
 package pl.kamil0024.weryfikacja;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.*;
@@ -48,44 +50,46 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class WeryfikacjaModule extends ListenerAdapter implements Modul {
+public class WeryfikacjaModule implements Modul {
 
     private final MultiDao multiDao;
     private final ModLog modLog;
     private final CaseDao caseDao;
-
     public final WeryfikacjaDao weryfikacjaDao;
     public final APIModule apiModule;
+    public final EventBus eventBus;
 
     @Getter
     private final String name = "weryfikacja";
 
-    @Getter
-    @Setter
+    @Getter @Setter
     private boolean start = false;
     private ChangeNickname changeNickname;
 
     private final List<String> userCooldown;
 
-    public WeryfikacjaModule(APIModule apiModule, MultiDao multiDao, ModLog modLog, CaseDao caseDao, WeryfikacjaDao weryfikacjaDao) {
+    public WeryfikacjaModule(APIModule apiModule, MultiDao multiDao, ModLog modLog, CaseDao caseDao, WeryfikacjaDao weryfikacjaDao, EventBus eventBus) {
         this.apiModule = apiModule;
         this.multiDao = multiDao;
         this.modLog = modLog;
         this.caseDao = caseDao;
         this.weryfikacjaDao = weryfikacjaDao;
+        this.eventBus = eventBus;
         this.userCooldown = new ArrayList<>();
     }
 
     @Override
     public boolean startUp() {
         this.changeNickname = new ChangeNickname();
-        apiModule.getApi().addEventListener(this, changeNickname);
+        eventBus.register(this);
+        eventBus.register(changeNickname);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        apiModule.getApi().removeEventListener(this, changeNickname);
+        eventBus.unregister(this);
+        eventBus.unregister(changeNickname);
         return true;
     }
 
@@ -106,7 +110,7 @@ public class WeryfikacjaModule extends ListenerAdapter implements Modul {
         if (!bypass) {
             WeryfikacjaConfig wc = weryfikacjaDao.get(config.getNick());
             if (wc != null && !wc.isDisabled() && !wc.getDiscordId().equals(userId)) {
-                channel.sendMessage(member.getAsMention() + " nick, na którym próbujesz wejść ma już przypisane konto Discord. Jedno konto Minecraft może być przypisane **tylko** do jednego konta Discord! Jeżeli straciłeś/aś dostęp do starego konta, napisz do nas! W wiadomości podaj kod błędu `WER_1`")
+                channel.sendMessage(member.getAsMention() + " , już ktoś zweryfikował się na nicku `" + config.getNick() + "`! Jeżeli straciłeś/aś dostęp do starego konta? Napisz do nas! W wiadomości podaj kod błędu `WER_1`")
                         .queue(m -> m.delete().queueAfter(30, TimeUnit.SECONDS));
                 return;
             }
@@ -210,20 +214,18 @@ public class WeryfikacjaModule extends ListenerAdapter implements Modul {
         apiModule.getDcCache().invalidate(config.getKod());
     }
 
-    @Override
+    @Subscribe
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.getChannel().getId().equals("740157959207780362") || event.getAuthor().isBot() || !event.isFromGuild())
             return;
-
         String msg = event.getMessage().getContentRaw();
         try {
             event.getMessage().delete().complete();
         } catch (Exception ignored) { }
-
         executeCode(event.getMember(), event.getChannel(), msg, event.getGuild(), false);
     }
 
-    @Override
+    @Subscribe
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getChannel().getId().equals("740157959207780362") || !event.isFromGuild()) return;
         User user = event.getUser();
@@ -247,7 +249,6 @@ public class WeryfikacjaModule extends ListenerAdapter implements Modul {
                     });
             return;
         }
-
         executeCode(event.getUserId(), conf, event.getChannel(), event.getGuild(), false);
         apiModule.getNewWery().invalidate(event.getUserId());
     }

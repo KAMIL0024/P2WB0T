@@ -19,6 +19,7 @@
 
 package pl.kamil0024.core.command;
 
+import com.google.common.eventbus.Subscribe;
 import io.sentry.Sentry;
 import io.sentry.SentryEvent;
 import io.sentry.SentryLevel;
@@ -57,7 +58,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class CommandExecute extends ListenerAdapter {
+public class CommandExecute {
 
     private final Logger logger = LoggerFactory.getLogger(CommandExecute.class);
 
@@ -78,7 +79,7 @@ public class CommandExecute extends ListenerAdapter {
         reloadConfig();
     }
 
-    @Override
+    @Subscribe
     public void onMessageReceived(MessageReceivedEvent e) {
         if (!e.isFromGuild() || e.getAuthor().isBot() || e.getMessage().isWebhookMessage() ||
                 e.getMessage().getContentRaw().isEmpty()) {
@@ -240,7 +241,7 @@ public class CommandExecute extends ListenerAdapter {
         executor.execute(runnable);
     }
 
-    @Override
+    @Subscribe
     public void onSlashCommand(SlashCommandEvent e) {
         if (e.getGuild() == null || !e.isFromGuild()) return;
         Command c = commandManager.commands.get(e.getName());

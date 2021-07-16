@@ -19,6 +19,7 @@
 
 package pl.kamil0024.commands;
 
+import com.google.common.eventbus.EventBus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -94,24 +95,23 @@ public class CommandsModule implements Modul {
     private final StatusModule statusModule;
     private final APIModule apiModule;
     private final SpotifyUtil spotifyUtil;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "commands";
 
-    @Getter
-    @Setter
+    @Getter @Setter
     private boolean start = false;
     private final ModLog modLog;
 
     // Listeners
     private KolkoIKrzyzykManager kolkoIKrzyzykManager;
 
-
     private GuildListener guildListener;
 
     private ArrayList<Command> cmd;
 
-    public CommandsModule(CommandManager commandManager, ShardManager api, EventWaiter eventWaiter, KaryJSON karyJSON, CaseDao caseDao, ModulManager modulManager, CommandExecute commandExecute, UserDao userDao, ModLog modLog, NieobecnosciDao nieobecnosciDao, RemindDao remindDao, GiveawayDao giveawayDao, StatsModule statsModule, MusicModule musicModule, MultiDao multiDao, TicketDao ticketDao, ApelacjeDao apelacjeDao, AnkietaDao ankietaDao, EmbedRedisManager embedRedisManager, WeryfikacjaDao weryfikacjaDao, WeryfikacjaModule weryfikacjaModule, RecordingDao recordingDao, SocketManager socketManager, DeletedMessagesDao deletedMessagesDao, AcBanDao acBanDao, UserstatsManager userstatsManager, StatusModule statusModule, APIModule apiModule, SpotifyUtil spotifyApi) {
+    public CommandsModule(CommandManager commandManager, ShardManager api, EventWaiter eventWaiter, KaryJSON karyJSON, CaseDao caseDao, ModulManager modulManager, CommandExecute commandExecute, UserDao userDao, ModLog modLog, NieobecnosciDao nieobecnosciDao, RemindDao remindDao, GiveawayDao giveawayDao, StatsModule statsModule, MusicModule musicModule, MultiDao multiDao, TicketDao ticketDao, ApelacjeDao apelacjeDao, AnkietaDao ankietaDao, EmbedRedisManager embedRedisManager, WeryfikacjaDao weryfikacjaDao, WeryfikacjaModule weryfikacjaModule, RecordingDao recordingDao, SocketManager socketManager, DeletedMessagesDao deletedMessagesDao, AcBanDao acBanDao, UserstatsManager userstatsManager, StatusModule statusModule, APIModule apiModule, SpotifyUtil spotifyApi, EventBus eventBus) {
         this.commandManager = commandManager;
         this.api = api;
         this.eventWaiter = eventWaiter;
@@ -141,6 +141,7 @@ public class CommandsModule implements Modul {
         this.statusModule = statusModule;
         this.apiModule = apiModule;
         this.spotifyUtil = spotifyApi;
+        this.eventBus = eventBus;
 
         ScheduledExecutorService executorSche = Executors.newSingleThreadScheduledExecutor();
         executorSche.scheduleWithFixedDelay(() -> {
@@ -159,7 +160,7 @@ public class CommandsModule implements Modul {
         kolkoIKrzyzykManager = new KolkoIKrzyzykManager(api, eventWaiter);
         guildListener = new GuildListener();
 
-        api.addEventListener(guildListener);
+        eventBus.register(guildListener);
 
         cmd = new ArrayList<>();
 
@@ -226,7 +227,7 @@ public class CommandsModule implements Modul {
     @Override
     public boolean shutDown() {
         kolkoIKrzyzykManager.stop();
-        api.removeEventListener(guildListener);
+        eventBus.unregister(guildListener);
         commandManager.unregisterCommands(cmd);
         setStart(false);
         return true;

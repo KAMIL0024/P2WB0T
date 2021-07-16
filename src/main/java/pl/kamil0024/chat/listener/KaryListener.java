@@ -19,6 +19,7 @@
 
 package pl.kamil0024.chat.listener;
 
+import com.google.common.eventbus.Subscribe;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -42,7 +43,7 @@ import pl.kamil0024.stats.StatsModule;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-public class KaryListener extends ListenerAdapter {
+public class KaryListener {
 
     @Getter
     private final Cache<Action> embedy;
@@ -60,7 +61,7 @@ public class KaryListener extends ListenerAdapter {
         this.embedy = redisManager.new CacheRetriever<Action>() {}.getCache(-1);
     }
 
-    @Override
+    @Subscribe
     public void onButtonClick(ButtonClickEvent event) {
         if (!event.isFromGuild() ||
                 event.getGuild() == null ||

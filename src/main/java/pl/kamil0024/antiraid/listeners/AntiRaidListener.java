@@ -19,6 +19,7 @@
 
 package pl.kamil0024.antiraid.listeners;
 
+import com.google.common.eventbus.Subscribe;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -40,14 +41,14 @@ import java.util.Collections;
 import java.util.Objects;
 
 @AllArgsConstructor
-public class AntiRaidListener extends ListenerAdapter {
+public class AntiRaidListener {
 
     private final AntiRaidManager antiRaidManager;
     private final AntiRaidDao dao;
     private final CaseDao caseDao;
     private final ModLog modLog;
 
-    @Override
+    @Subscribe
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.isFromGuild() || event.getAuthor().isBot()
                 || UserUtil.getPermLevel(event.getMember()).getNumer() > PermLevel.MEMBER.getNumer()
@@ -62,7 +63,7 @@ public class AntiRaidListener extends ListenerAdapter {
         }
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
         if (event.getMember().getUser().isBot() || !event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)
                 || !event.getChannel().getId().equals(Ustawienia.instance.channel.moddc)) return;

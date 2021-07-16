@@ -19,6 +19,7 @@
 
 package pl.kamil0024.liczydlo;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -30,9 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LiczydloListener extends ListenerAdapter {
+public class LiczydloListener {
 
-    @Override
+    @Subscribe
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (!event.getChannel().getId().equals(Ustawienia.instance.channel.liczek)) return;
 
@@ -64,7 +65,7 @@ public class LiczydloListener extends ListenerAdapter {
         }
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
         if (!event.getChannel().getId().equals(Ustawienia.instance.channel.liczek)) return;
         event.getMessage().delete().complete();

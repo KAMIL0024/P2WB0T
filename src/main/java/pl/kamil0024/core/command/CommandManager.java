@@ -29,11 +29,9 @@ import pl.kamil0024.core.logger.Log;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class CommandManager extends ListenerAdapter {
+public class CommandManager {
 
     private static final Logger logger = LoggerFactory.getLogger(CommandManager.class);
-
-    private final ShardManager shardManager;
 
     @Getter
     public Set<Command> registered;
@@ -47,11 +45,10 @@ public class CommandManager extends ListenerAdapter {
     @Getter
     public List<Command> slashCommands = new ArrayList<>();
 
-    public CommandManager(ShardManager shardManager) {
+    public CommandManager() {
         this.commands = new HashMap<>();
         this.registered = new HashSet<>();
         this.aliases = new HashMap<>();
-        this.shardManager = shardManager;
     }
 
     public void registerCommand(Command command) {

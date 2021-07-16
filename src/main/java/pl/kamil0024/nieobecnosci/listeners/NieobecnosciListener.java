@@ -19,6 +19,7 @@
 
 package pl.kamil0024.nieobecnosci.listeners;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -41,7 +42,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class NieobecnosciListener extends ListenerAdapter {
+public class NieobecnosciListener {
 
     private static final Logger logger = LoggerFactory.getLogger(NieobecnosciListener.class);
 
@@ -53,7 +54,7 @@ public class NieobecnosciListener extends ListenerAdapter {
         this.nieobecnosciManager = nieobecnosciManager;
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageReceived(GuildMessageReceivedEvent e) {
         if (!e.getChannel().getId().equals(Ustawienia.instance.channel.nieobecnosci) || e.getAuthor().isBot()) return;
 
@@ -143,7 +144,7 @@ public class NieobecnosciListener extends ListenerAdapter {
         nieobecnosciManager.put(e.getMessage(), start, powod, end);
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent e) {
         synchronized (e.getGuild().getId()) {
             if (!e.getChannel().getId().equals(Ustawienia.instance.channel.nieobecnosci) || e.getMember().getUser().isBot())
@@ -178,7 +179,6 @@ public class NieobecnosciListener extends ListenerAdapter {
                     }
                 }
             }
-
         }
     }
 }

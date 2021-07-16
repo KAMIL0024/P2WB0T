@@ -19,6 +19,7 @@
 
 package pl.kamil0024.stats.listener;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -27,7 +28,7 @@ import pl.kamil0024.stats.StatsModule;
 
 import java.util.Objects;
 
-public class StatsListener extends ListenerAdapter {
+public class StatsListener {
 
     private final StatsModule statsModule;
 
@@ -35,8 +36,8 @@ public class StatsListener extends ListenerAdapter {
         this.statsModule = statsModule;
     }
 
-    @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    @Subscribe
+    public void onMessageReceived(GuildMessageReceivedEvent event) {
         Category category = event.getChannel().getParent();
         if (category == null || event.getAuthor().isBot()) return;
 

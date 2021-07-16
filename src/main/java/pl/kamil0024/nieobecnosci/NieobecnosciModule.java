@@ -20,6 +20,7 @@
 package pl.kamil0024.nieobecnosci;
 
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -31,6 +32,8 @@ public class NieobecnosciModule implements Modul {
 
     private final ShardManager api;
     private final NieobecnosciDao nieobecnosciDao;
+    private final NieobecnosciManager nieobecnosciManager;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "nieobecnosci";
@@ -40,25 +43,25 @@ public class NieobecnosciModule implements Modul {
     private boolean start = false;
 
     private NieobecnosciListener nieobecnosciListener;
-    private final NieobecnosciManager nieobecnosciManager;
 
-    public NieobecnosciModule(ShardManager api, NieobecnosciDao nieobecnosciDao, NieobecnosciManager nieobecnosciManager) {
+    public NieobecnosciModule(ShardManager api, NieobecnosciDao nieobecnosciDao, NieobecnosciManager nieobecnosciManager, EventBus eventBus) {
         this.api = api;
         this.nieobecnosciDao = nieobecnosciDao;
         this.nieobecnosciManager = nieobecnosciManager;
+        this.eventBus = eventBus;
     }
 
     @Override
     public boolean startUp() {
         this.nieobecnosciListener = new NieobecnosciListener(nieobecnosciDao, nieobecnosciManager);
-        api.addEventListener(nieobecnosciListener);
+        eventBus.register(nieobecnosciListener);
         setStart(true);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(nieobecnosciListener);
+        eventBus.unregister(nieobecnosciListener);
         setStart(false);
         return true;
     }

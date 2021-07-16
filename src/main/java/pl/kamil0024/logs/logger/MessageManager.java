@@ -19,6 +19,7 @@
 
 package pl.kamil0024.logs.logger;
 
+import com.google.common.eventbus.Subscribe;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -26,7 +27,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import pl.kamil0024.core.redis.Cache;
 import pl.kamil0024.core.redis.RedisManager;
 
-public class MessageManager extends ListenerAdapter {
+public class MessageManager {
 
     @Getter
     private final Cache<FakeMessage> map;
@@ -49,7 +50,7 @@ public class MessageManager extends ListenerAdapter {
         return map.getIfPresent(id);
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (event.getAuthor().isBot() || event.getMessage().isWebhookMessage()) return;
         if (event.getMessage().getAttachments().isEmpty() && event.getMessage().getContentRaw().isEmpty()) return;

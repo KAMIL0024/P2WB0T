@@ -20,6 +20,7 @@
 package pl.kamil0024.chat;
 
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -40,6 +41,7 @@ public class ChatModule implements Modul {
     private final ModLog modLog;
     private final StatsModule statsModule;
     private final RedisManager redisManager;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "chat";
@@ -49,27 +51,30 @@ public class ChatModule implements Modul {
     private ChatListener chatListener;
     private KaryListener karyListener;
 
-    public ChatModule(ShardManager api, KaryJSON karyJSON, CaseDao caseDao, ModLog modLog, StatsModule statsModule, RedisManager redisManager) {
+    public ChatModule(ShardManager api, KaryJSON karyJSON, CaseDao caseDao, ModLog modLog, StatsModule statsModule, RedisManager redisManager, EventBus eventBus) {
         this.api = api;
         this.karyJSON = karyJSON;
         this.modLog = modLog;
         this.caseDao = caseDao;
         this.statsModule = statsModule;
         this.redisManager = redisManager;
+        this.eventBus = eventBus;
     }
 
     @Override
     public boolean startUp() {
         this.karyListener = new KaryListener(karyJSON, caseDao, modLog, statsModule, redisManager);
         this.chatListener = new ChatListener(karyJSON, caseDao, modLog, statsModule, this.karyListener);
-        api.addEventListener(chatListener, karyListener);
+        eventBus.register(chatListener);
+        eventBus.register(karyListener);
         setStart(true);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(chatListener, karyListener);
+        eventBus.unregister(chatListener);
+        eventBus.unregister(karyListener);
         setStart(false);
         return true;
     }

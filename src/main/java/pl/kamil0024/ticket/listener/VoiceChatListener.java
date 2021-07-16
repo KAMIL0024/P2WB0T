@@ -20,6 +20,7 @@
 package pl.kamil0024.ticket.listener;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
@@ -57,7 +58,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class VoiceChatListener extends ListenerAdapter {
+@Deprecated
+public class VoiceChatListener {
 
     private final static long EKIPA_ID = 561102835715145728L;
     private final static long RAW_PERMS = Permission.getRaw(Permission.VOICE_CONNECT, Permission.VOICE_SPEAK, Permission.VIEW_CHANNEL);
@@ -81,7 +83,7 @@ public class VoiceChatListener extends ListenerAdapter {
     }
 
     @SuppressWarnings("ConstantConditions")
-    @Override
+    @Subscribe
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         Guild guild = event.getGuild();
@@ -135,7 +137,7 @@ public class VoiceChatListener extends ListenerAdapter {
         channelJoin(event.getMember(), event.getChannelJoined());
     }
 
-    @Override
+    @Subscribe
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         channelJoin(event.getMember(), event.getChannelJoined());
@@ -201,7 +203,7 @@ public class VoiceChatListener extends ListenerAdapter {
         ses.schedule(task, 30, TimeUnit.SECONDS);
     }
 
-    @Override
+    @Subscribe
     public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         TextChannel txt = event.getJDA().getTextChannelById(Ustawienia.instance.ticket.notificationChannel);
@@ -241,7 +243,7 @@ public class VoiceChatListener extends ListenerAdapter {
 
     }
 
-    @Override
+    @Subscribe
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         checkRemoveTicket(event.getChannelLeft());
         deleteMessage(event.getMember().getId(), event.getJDA());

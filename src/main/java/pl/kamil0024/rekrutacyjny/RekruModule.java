@@ -19,6 +19,7 @@
 
 package pl.kamil0024.rekrutacyjny;
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -32,10 +33,9 @@ import java.util.ArrayList;
 
 public class RekruModule implements Modul {
 
-    private ArrayList<Command> cmd;
 
     private final CommandManager commandManager;
-    private final ShardManager api;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "rekrutacyjny";
@@ -45,10 +45,11 @@ public class RekruModule implements Modul {
     private boolean start = false;
 
     private SyncListener listener;
+    private ArrayList<Command> cmd;
 
-    public RekruModule(ShardManager api, CommandManager commandManager) {
-        this.api = api;
+    public RekruModule(CommandManager commandManager, EventBus eventBus) {
         this.commandManager = commandManager;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -58,14 +59,14 @@ public class RekruModule implements Modul {
         cmd.forEach(commandManager::registerCommand);
 
         listener = new SyncListener();
-        api.addEventListener(listener);
+        eventBus.register(listener);
         setStart(true);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(listener);
+        eventBus.unregister(listener);
         commandManager.unregisterCommands(cmd);
         setStart(false);
         return true;

@@ -52,7 +52,7 @@ import pl.kamil0024.core.command.CommandExecute;
 import pl.kamil0024.core.command.CommandManager;
 import pl.kamil0024.core.database.*;
 import pl.kamil0024.core.database.config.VoiceStateConfig;
-import pl.kamil0024.core.listener.ExceptionListener;
+import pl.kamil0024.core.listener.JDAHandler;
 import pl.kamil0024.core.logger.Log;
 import pl.kamil0024.core.module.Modul;
 import pl.kamil0024.core.module.ModulManager;
@@ -76,7 +76,6 @@ import pl.kamil0024.music.utils.SpotifyUtil;
 import pl.kamil0024.nieobecnosci.NieobecnosciManager;
 import pl.kamil0024.nieobecnosci.NieobecnosciModule;
 import pl.kamil0024.privatechannel.PVChannelModule;
-import pl.kamil0024.privatechannel.listeners.PVChannelListener;
 import pl.kamil0024.rekrutacyjny.RekruModule;
 import pl.kamil0024.stats.StatsModule;
 import pl.kamil0024.status.StatusModule;
@@ -139,7 +138,7 @@ public class B0T {
 
         modules = new HashMap<>();
         ArgumentManager argumentManager = new ArgumentManager();
-        CommandManager commandManager = new CommandManager(api);
+        CommandManager commandManager = new CommandManager();
 
         argumentManager.registerAll();
         shutdownThread();
@@ -184,6 +183,7 @@ public class B0T {
 
         this.api = null;
         try {
+            JDAHandler eventHandler = new JDAHandler(eventBus);
             DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token,
                     GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_BANS, GatewayIntent.GUILD_VOICE_STATES,
                     GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS,
@@ -194,7 +194,8 @@ public class B0T {
             builder.setAutoReconnect(true);
             builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
             builder.setActivity(Activity.playing(Tlumaczenia.get("status.starting")));
-            builder.addEventListeners(eventWaiter, new ExceptionListener());
+            builder.addEventListeners(eventWaiter, eventHandler);
+            builder.setVoiceDispatchInterceptor(eventHandler);
             builder.setBulkDeleteSplittingEnabled(false);
             builder.setCallbackPool(Executors.newFixedThreadPool(30));
             builder.enableCache(CacheFlag.EMOTE, CacheFlag.ACTIVITY);
@@ -254,7 +255,7 @@ public class B0T {
         MultiDao multiDao = new MultiDao(databaseManager);
         TicketDao ticketDao = new TicketDao(databaseManager);
         ApelacjeDao apelacjeDao = new ApelacjeDao(databaseManager);
-        AnkietaDao ankietaDao = new AnkietaDao(databaseManager, api);
+        AnkietaDao ankietaDao = new AnkietaDao(databaseManager, api, eventBus);
         WeryfikacjaDao weryfikacjaDao = new WeryfikacjaDao(databaseManager);
         AcBanDao acBanDao = new AcBanDao(databaseManager);
         RecordingDao recordingDao = new RecordingDao(databaseManager);
@@ -264,18 +265,16 @@ public class B0T {
         SpotifyDao spotifyDao = new SpotifyDao(databaseManager);
         TXTTicketDao txtTicketDao = new TXTTicketDao(databaseManager);
 
-        ArrayList<Object> listeners = new ArrayList<>();
         CommandExecute commandExecute = new CommandExecute(commandManager, argumentManager, userDao);
-        listeners.add(commandExecute);
-        listeners.forEach(api::addEventListener);
 
         this.modulManager = new ModulManager();
         ModLog modLog = new ModLog(api, caseDao);
         NieobecnosciManager nieobecnosciManager = new NieobecnosciManager(api, nieobecnosciDao);
-        UserstatsManager userstatsManager = new UserstatsManager(redisManager, userstatsDao, api);
+        UserstatsManager userstatsManager = new UserstatsManager(redisManager, userstatsDao);
 
-        api.addEventListener(modLog);
-        api.addEventListener(userstatsManager);
+        eventBus.register(commandExecute);
+        eventBus.register(userstatsManager);
+        eventBus.register(modLog);
 
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setClientId(Ustawienia.instance.spotify.id)
@@ -284,28 +283,28 @@ public class B0T {
         SpotifyUtil spotifyUtil = new SpotifyUtil(spotifyApi, spotifyDao);
 
         this.musicModule = new MusicModule(commandManager, api, eventWaiter, voiceStateDao, socketManager, spotifyUtil);
-        this.statsModule = new StatsModule(commandManager, api, eventWaiter, statsDao, musicModule, nieobecnosciDao);
+        this.statsModule = new StatsModule(commandManager, api, eventWaiter, statsDao, musicModule, nieobecnosciDao, eventBus);
 
         StatusModule statusModule = new StatusModule(api, redisManager);
         APIModule apiModule = new APIModule(api, caseDao, redisManager, nieobecnosciDao, statsDao, voiceStateDao, ticketDao, apelacjeDao, ankietaDao, embedRedisManager, acBanDao, recordingDao, deletedMessagesDao, karyJSON, modLog, statsModule, statusModule, spotifyUtil);
-        WeryfikacjaModule weryfikacjaModule = new WeryfikacjaModule(apiModule, multiDao, modLog, caseDao, weryfikacjaDao);
+        WeryfikacjaModule weryfikacjaModule = new WeryfikacjaModule(apiModule, multiDao, modLog, caseDao, weryfikacjaDao, eventBus);
 
-        modulManager.getModules().add(new LogsModule(api, statsModule, redisManager, deletedMessagesDao));
-        modulManager.getModules().add(new ChatModule(api, karyJSON, caseDao, modLog, statsModule, redisManager));
+        modulManager.getModules().add(new LogsModule(api, statsModule, redisManager, deletedMessagesDao, eventBus));
+        modulManager.getModules().add(new ChatModule(api, karyJSON, caseDao, modLog, statsModule, redisManager, eventBus));
         modulManager.getModules().add(statusModule);
-        modulManager.getModules().add(new NieobecnosciModule(api, nieobecnosciDao, nieobecnosciManager));
-        modulManager.getModules().add(new LiczydloModule(api));
-        modulManager.getModules().add(new CommandsModule(commandManager, api, eventWaiter, karyJSON, caseDao, modulManager, commandExecute, userDao, modLog, nieobecnosciDao, remindDao, giveawayDao, statsModule, musicModule, multiDao, ticketDao, apelacjeDao, ankietaDao, embedRedisManager, weryfikacjaDao, weryfikacjaModule, recordingDao, socketManager, deletedMessagesDao, acBanDao, userstatsManager, statusModule, apiModule, spotifyUtil));
-        modulManager.getModules().add(new RekruModule(api, commandManager));
+        modulManager.getModules().add(new NieobecnosciModule(api, nieobecnosciDao, nieobecnosciManager, eventBus));
+        modulManager.getModules().add(new LiczydloModule(api, eventBus));
+        modulManager.getModules().add(new CommandsModule(commandManager, api, eventWaiter, karyJSON, caseDao, modulManager, commandExecute, userDao, modLog, nieobecnosciDao, remindDao, giveawayDao, statsModule, musicModule, multiDao, ticketDao, apelacjeDao, ankietaDao, embedRedisManager, weryfikacjaDao, weryfikacjaModule, recordingDao, socketManager, deletedMessagesDao, acBanDao, userstatsManager, statusModule, apiModule, spotifyUtil, eventBus));
+        modulManager.getModules().add(new RekruModule(commandManager, eventBus));
         modulManager.getModules().add(musicModule);
         modulManager.getModules().add(statsModule);
         modulManager.getModules().add(apiModule);
         modulManager.getModules().add(new EmbedGeneratorModule(commandManager, embedRedisManager));
         modulManager.getModules().add(weryfikacjaModule);
-        modulManager.getModules().add(new TicketModule(api, ticketDao, redisManager, eventWaiter, txtTicketDao));
-        modulManager.getModules().add(new AntiRaidModule(api, antiRaidDao, redisManager, caseDao, modLog));
-        modulManager.getModules().add(new ModerationModule(commandManager, eventWaiter, caseDao, statsModule, nieobecnosciManager, nieobecnosciDao, modLog, karyJSON, multiDao, api));
-        modulManager.getModules().add(new PVChannelModule(api, socketManager));
+        modulManager.getModules().add(new TicketModule(redisManager, txtTicketDao, eventBus));
+        modulManager.getModules().add(new AntiRaidModule(antiRaidDao, redisManager, caseDao, modLog, eventBus));
+        modulManager.getModules().add(new ModerationModule(commandManager, eventWaiter, caseDao, statsModule, nieobecnosciManager, nieobecnosciDao, modLog, karyJSON, multiDao, api, eventBus));
+        modulManager.getModules().add(new PVChannelModule(api, socketManager, eventBus));
 
         for (Modul modul : modulManager.getModules()) {
             try {

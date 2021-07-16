@@ -19,6 +19,7 @@
 
 package pl.kamil0024.moderation.listeners;
 
+import com.google.common.eventbus.Subscribe;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -56,14 +57,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ModLog extends ListenerAdapter {
+public class ModLog {
 
     private final ShardManager api;
     private final TextChannel modlog;
     private final CaseDao caseDao;
 
-    @Setter
-    @Getter
+    @Setter @Getter
     private int proby = 0;
 
     public ModLog(ShardManager api, CaseDao caseDao) {
@@ -86,7 +86,7 @@ public class ModLog extends ListenerAdapter {
         }, 2, 2, TimeUnit.MINUTES);
     }
 
-    @Override
+    @Subscribe
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         new Thread(() -> {
@@ -354,12 +354,12 @@ public class ModLog extends ListenerAdapter {
         return lang;
     }
 
-    @Override
+    @Subscribe
     public void onGuildBan(GuildBanEvent event) {
         sendCase(event.getGuild(), event.getUser(), ActionType.BAN);
     }
 
-    @Override
+    @Subscribe
     public void onGuildUnban(GuildUnbanEvent event) {
         sendCase(event.getGuild(), event.getUser(), ActionType.UNBAN);
     }

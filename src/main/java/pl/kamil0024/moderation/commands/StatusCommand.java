@@ -19,6 +19,7 @@
 
 package pl.kamil0024.moderation.commands;
 
+import com.google.common.eventbus.Subscribe;
 import io.sentry.Sentry;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -87,11 +88,11 @@ public class StatusCommand extends Command {
         return true;
     }
 
-    public static class StatusListener extends ListenerAdapter {
+    public static class StatusListener {
 
         private final Map<String, List<String>> serversMap = new HashMap<>();
 
-        @Override
+        @Subscribe
         public void onSelectionMenu(SelectionMenuEvent e) {
             if (!e.getComponentId().equals(MENU_COMPONENT_ID)) return;
 
@@ -109,7 +110,7 @@ public class StatusCommand extends Command {
                     .queue();
         }
 
-        @Override
+        @Subscribe
         public void onButtonClick(ButtonClickEvent e) {
             try {
                 if (!e.getComponentId().startsWith(BUTTON_COMPONENT_ID)) return;

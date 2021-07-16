@@ -19,6 +19,7 @@
 
 package pl.kamil0024.antiraid;
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -32,11 +33,11 @@ import pl.kamil0024.moderation.listeners.ModLog;
 
 public class AntiRaidModule implements Modul {
 
-    private final ShardManager api;
     private final AntiRaidDao dao;
     private final RedisManager redisManager;
     private final CaseDao caseDao;
     private final ModLog modLog;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "antiraid";
@@ -47,25 +48,25 @@ public class AntiRaidModule implements Modul {
 
     private AntiRaidListener antiRaidListener;
 
-    public AntiRaidModule(ShardManager api, AntiRaidDao dao, RedisManager redisManager, CaseDao caseDao, ModLog modLog) {
-        this.api = api;
+    public AntiRaidModule(AntiRaidDao dao, RedisManager redisManager, CaseDao caseDao, ModLog modLog, EventBus eventBus) {
         this.dao = dao;
         this.redisManager = redisManager;
         this.caseDao = caseDao;
         this.modLog = modLog;
+        this.eventBus = eventBus;
     }
 
     @Override
     public boolean startUp() {
         AntiRaidManager manager = new AntiRaidManager(dao, redisManager);
         antiRaidListener = new AntiRaidListener(manager, dao, caseDao, modLog);
-        api.addEventListener(antiRaidListener);
+        eventBus.register(antiRaidListener);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(antiRaidListener);
+        eventBus.unregister(antiRaidListener);
         return true;
     }
 

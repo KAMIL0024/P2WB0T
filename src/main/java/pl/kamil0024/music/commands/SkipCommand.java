@@ -26,7 +26,6 @@ import pl.kamil0024.core.command.CommandContext;
 import pl.kamil0024.core.command.enums.CommandCategory;
 import pl.kamil0024.core.command.enums.PermLevel;
 import pl.kamil0024.music.MusicModule;
-import pl.kamil0024.musicmanager.MusicManager;
 import pl.kamil0024.musicmanager.entity.GuildMusicManager;
 
 public class SkipCommand extends Command {

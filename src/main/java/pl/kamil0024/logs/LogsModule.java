@@ -19,6 +19,7 @@
 
 package pl.kamil0024.logs;
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -45,6 +46,7 @@ public class LogsModule implements Modul {
     private final StatsModule statsModule;
     private final RedisManager redisManager;
     private final DeletedMessagesDao deletedMessagesDao;
+    private final EventBus eventBus;
 
     private MessageManager messageManager;
     private Logger logger;
@@ -53,11 +55,12 @@ public class LogsModule implements Modul {
     @Setter
     private boolean start = false;
 
-    public LogsModule(ShardManager api, StatsModule statsModule, RedisManager redisManager, DeletedMessagesDao deletedMessagesDao) {
+    public LogsModule(ShardManager api, StatsModule statsModule, RedisManager redisManager, DeletedMessagesDao deletedMessagesDao, EventBus eventBus) {
         this.api = api;
         this.statsModule = statsModule;
         this.redisManager = redisManager;
         this.deletedMessagesDao = deletedMessagesDao;
+        this.eventBus = eventBus;
 
         ScheduledExecutorService executorSche = Executors.newScheduledThreadPool(2);
         executorSche.scheduleAtFixedRate(() -> {
@@ -72,16 +75,18 @@ public class LogsModule implements Modul {
 
     @Override
     public boolean startUp() {
-        messageManager = new MessageManager(redisManager);
-        logger = new Logger(messageManager, api, statsModule, deletedMessagesDao);
-        api.addEventListener(messageManager, logger);
+        this.messageManager = new MessageManager(redisManager);
+        this.logger = new Logger(messageManager, api, statsModule, deletedMessagesDao);
+        eventBus.register(messageManager);
+        eventBus.register(logger);
         setStart(true);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(messageManager, logger);
+        eventBus.unregister(messageManager);
+        eventBus.unregister(logger);
         setStart(false);
         return true;
     }

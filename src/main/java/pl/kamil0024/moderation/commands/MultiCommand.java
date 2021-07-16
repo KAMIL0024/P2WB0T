@@ -102,7 +102,7 @@ public class MultiCommand extends Command {
             for (Nick nick : multiConfig.getNicki()) {
                 sb.append(index + ". ");
                 sb.appendLine(format(nick, showUser ? UserUtil.getFullName(jda, multiConfig.getId()) : null));
-                if (sb.toString().length() >= 1900) {
+                if (sb.toString().length() >= 3900) {
                     eb.setDescription(sb.toString());
                     pages.add(eb);
                     eb = new EmbedBuilder();

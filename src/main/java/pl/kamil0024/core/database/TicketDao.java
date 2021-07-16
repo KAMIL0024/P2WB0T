@@ -29,7 +29,6 @@ import pl.kamil0024.core.util.BetterStringBuilder;
 import pl.kamil0024.core.util.UserUtil;
 import pl.kamil0024.ticket.config.ChannelTicketConfig;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 

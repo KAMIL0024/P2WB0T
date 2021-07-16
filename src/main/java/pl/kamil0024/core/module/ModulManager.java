@@ -22,7 +22,6 @@ package pl.kamil0024.core.module;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class ModulManager {
 

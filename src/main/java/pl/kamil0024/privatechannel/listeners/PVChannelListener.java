@@ -19,6 +19,7 @@
 
 package pl.kamil0024.privatechannel.listeners;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
@@ -41,7 +42,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class PVChannelListener extends ListenerAdapter {
+public class PVChannelListener {
 
     private final String primChannel;
 
@@ -70,18 +71,18 @@ public class PVChannelListener extends ListenerAdapter {
         channels.forEach(this::delete);
     }
 
-    @Override
+    @Subscribe
     public void onGuildVoiceJoin(GuildVoiceJoinEvent e) {
         action(e.getMember(), e.getChannelJoined());
     }
 
-    @Override
+    @Subscribe
     public void onGuildVoiceMove(GuildVoiceMoveEvent e) {
         delete(e.getChannelLeft());
         action(e.getMember(), e.getChannelJoined());
     }
 
-    @Override
+    @Subscribe
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent e) {
         delete(e.getChannelLeft());
     }

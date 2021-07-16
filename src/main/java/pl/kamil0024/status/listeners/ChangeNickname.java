@@ -19,6 +19,7 @@
 
 package pl.kamil0024.status.listeners;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
@@ -27,11 +28,11 @@ import org.jetbrains.annotations.NotNull;
 import pl.kamil0024.core.Ustawienia;
 import pl.kamil0024.core.logger.Log;
 
-public class ChangeNickname extends ListenerAdapter {
+public class ChangeNickname {
 
     public ChangeNickname() { }
 
-    @Override
+    @Subscribe
     public void onUserUpdateName(@NotNull UserUpdateNameEvent e) {
         Guild g = e.getJDA().getGuildById(Ustawienia.instance.bot.guildId);
         if (g == null) {

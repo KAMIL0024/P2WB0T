@@ -19,6 +19,7 @@
 
 package pl.kamil0024.commands.listener;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -26,18 +27,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import pl.kamil0024.core.Ustawienia;
 import pl.kamil0024.moderation.commands.MuteCommand;
 
-public class GuildListener extends ListenerAdapter {
+public class GuildListener {
 
-    public GuildListener() {
-    }
+    public GuildListener() { }
 
-    @Override
+    @Subscribe
     public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         if (MuteCommand.hasMute(event.getMember())) {
             Message msg = event.getChannel().retrieveMessageById(event.getMessageId()).complete();
             if (msg == null) return; // tak
-
             MessageReaction.ReactionEmote emote = event.getReactionEmote();
             if (emote.isEmote()) msg.removeReaction(emote.getEmote(), event.getUser()).queue();
             else msg.removeReaction(emote.getEmoji(), event.getUser()).queue();

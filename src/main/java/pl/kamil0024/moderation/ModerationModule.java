@@ -19,6 +19,7 @@
 
 package pl.kamil0024.moderation;
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -49,6 +50,7 @@ public class ModerationModule implements Modul {
     private final KaryJSON karyJSON;
     private final MultiDao multiDao;
     private final ShardManager api;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "moderation";
@@ -61,7 +63,7 @@ public class ModerationModule implements Modul {
 
     private StatusCommand.StatusListener statusListener;
 
-    public ModerationModule(CommandManager commandManager, EventWaiter eventWaiter, CaseDao caseDao, StatsModule statsModule, NieobecnosciManager nieobecnosciManager, NieobecnosciDao nieobecnosciDao, ModLog modLog, KaryJSON karyJSON, MultiDao multiDao, ShardManager api) {
+    public ModerationModule(CommandManager commandManager, EventWaiter eventWaiter, CaseDao caseDao, StatsModule statsModule, NieobecnosciManager nieobecnosciManager, NieobecnosciDao nieobecnosciDao, ModLog modLog, KaryJSON karyJSON, MultiDao multiDao, ShardManager api, EventBus eventBus) {
         this.commandManager = commandManager;
         this.eventWaiter = eventWaiter;
         this.caseDao = caseDao;
@@ -72,6 +74,7 @@ public class ModerationModule implements Modul {
         this.karyJSON = karyJSON;
         this.multiDao = multiDao;
         this.api = api;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -99,7 +102,7 @@ public class ModerationModule implements Modul {
         cmd.forEach(commandManager::registerCommand);
 
         statusListener = new StatusCommand.StatusListener();
-        api.addEventListener(statusListener);
+        eventBus.register(statusListener);
 
         setStart(true);
         return true;
@@ -107,7 +110,7 @@ public class ModerationModule implements Modul {
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(statusListener);
+        eventBus.unregister(statusListener);
         commandManager.unregisterCommands(cmd);
         setStart(false);
         return true;

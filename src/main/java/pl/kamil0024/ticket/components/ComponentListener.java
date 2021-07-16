@@ -19,6 +19,7 @@
 
 package pl.kamil0024.ticket.components;
 
+import com.google.common.eventbus.Subscribe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.dv8tion.jda.api.Permission;
@@ -48,7 +49,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class ComponentListener extends ListenerAdapter {
+public class ComponentListener {
 
     public static final String BUTTON_NAME = "CREATE-TICKET";
     public static final  int   MAX_CHANNELS = 50;
@@ -97,7 +98,7 @@ public class ComponentListener extends ListenerAdapter {
         daoCache = redisManager.new CacheRetriever<TXTTicketConfig>() {}.getCache(0);
     }
 
-    @Override
+    @Subscribe
     public void onSelectionMenu(@NotNull SelectionMenuEvent e) {
         if (!e.getComponentId().equals("TICKET-CHOOSE-CATEGORY")) return;
         switch (e.getValues().get(0)) {
@@ -110,7 +111,7 @@ public class ComponentListener extends ListenerAdapter {
         }
     }
 
-    @Override
+    @Subscribe
     public void onButtonClick(ButtonClickEvent e) {
         switch (e.getComponentId()) {
             case BUTTON_NAME:

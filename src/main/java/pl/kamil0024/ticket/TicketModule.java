@@ -20,6 +20,7 @@
 package pl.kamil0024.ticket;
 
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -31,20 +32,15 @@ import pl.kamil0024.core.redis.RedisManager;
 import pl.kamil0024.core.util.EventWaiter;
 import pl.kamil0024.ticket.components.ComponentListener;
 import pl.kamil0024.ticket.config.TicketRedisManager;
-import pl.kamil0024.ticket.listener.VoiceChatListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TicketModule implements Modul {
 
-    private final TicketRedisManager ticketRedisManager;
-
-    private final TicketDao ticketDao;
-    private final ShardManager api;
     private final RedisManager redisManager;
-    private final EventWaiter eventWaiter;
     private final TXTTicketDao txtTicketDao;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "ticket";
@@ -53,30 +49,25 @@ public class TicketModule implements Modul {
     @Setter
     private boolean start = false;
 
-    private final List<ListenerAdapter> listeners = new ArrayList<>();
+    private ComponentListener listener = null;
 
-    public TicketModule(ShardManager api, TicketDao ticketDao, RedisManager redisManager, EventWaiter eventWaiter, TXTTicketDao txtTicketDao) {
-        this.api = api;
-        this.ticketDao = ticketDao;
+    public TicketModule(RedisManager redisManager, TXTTicketDao txtTicketDao, EventBus eventBus) {
         this.redisManager = redisManager;
-        this.ticketRedisManager = new TicketRedisManager(redisManager);
-        this.eventWaiter = eventWaiter;
         this.txtTicketDao = txtTicketDao;
+        this.eventBus = eventBus;
     }
 
     @Override
     public boolean startUp() {
-//        listeners.add(new VoiceChatListener(ticketDao, ticketRedisManager, eventWaiter, redisManager));
-        listeners.add(new ComponentListener(txtTicketDao, redisManager));
-        listeners.forEach(api::addEventListener);
+        this.listener = new ComponentListener(txtTicketDao, redisManager);
+        eventBus.register(listener);
         setStart(true);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        listeners.forEach(api::removeEventListener);
-        listeners.clear();
+        eventBus.unregister(listener);
         setStart(false);
         return true;
     }

@@ -19,6 +19,8 @@
 
 package pl.kamil0024.core.database;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import gg.amy.pgorm.PgMapper;
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -48,21 +50,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class AnkietaDao extends ListenerAdapter implements Dao<AnkietaConfig> {
+public class AnkietaDao implements Dao<AnkietaConfig> {
 
     @Getter
     private final PgMapper<AnkietaConfig> mapper;
 
     private final ShardManager api;
 
-    public AnkietaDao(DatabaseManager databaseManager, ShardManager api) {
+    public AnkietaDao(DatabaseManager databaseManager, ShardManager api, EventBus eventBus) {
         if (databaseManager == null) throw new IllegalStateException("databaseManager == null");
         mapper = databaseManager.getPgStore().mapSync(AnkietaConfig.class);
         this.api = api;
 
         ScheduledExecutorService executorSche = Executors.newSingleThreadScheduledExecutor();
         executorSche.scheduleAtFixedRate(this::update, 0, 7, TimeUnit.MINUTES);
-        api.addEventListener(this);
+        eventBus.register(this);
     }
 
     @Override
@@ -180,7 +182,7 @@ public class AnkietaDao extends ListenerAdapter implements Dao<AnkietaConfig> {
         }
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent e) {
         if (e.getChannel().getId().equals(Ustawienia.instance.rekrutacyjny.ankietyId) && !e.getUser().isBot()) {
             AnkietaConfig ankiety = mapper.loadRaw(String.format("SELECT * FROM ankieta WHERE data::jsonb @> '{\"messageId\": \"%s\"}'", e.getMessageId())).stream().findFirst().orElse(null);

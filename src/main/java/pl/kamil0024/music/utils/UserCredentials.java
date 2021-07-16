@@ -25,7 +25,6 @@ import lombok.Getter;
 import pl.kamil0024.core.Ustawienia;
 import pl.kamil0024.core.database.SpotifyDao;
 import pl.kamil0024.core.database.config.SpotifyConfig;
-import pl.kamil0024.core.logger.Log;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

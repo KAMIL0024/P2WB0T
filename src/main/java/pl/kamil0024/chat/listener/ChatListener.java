@@ -19,6 +19,7 @@
 
 package pl.kamil0024.chat.listener;
 
+import com.google.common.eventbus.Subscribe;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.Member;
@@ -59,7 +60,7 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class ChatListener extends ListenerAdapter {
+public class ChatListener {
 
     public static final Pattern HTTP = Pattern.compile("([0-9a-z_-]+\\.)+(com|infonet|net|org|pro|de|ggmc|md|me|tt|tv|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt)");
     public static final Pattern DISCORD_INVITE = Pattern.compile("(https?://)?(www\\.)?(discord\\.(gg|io|me|li)|discordapp\\.com/invite)/.+[a-z]");
@@ -108,7 +109,7 @@ public class ChatListener extends ListenerAdapter {
         return words;
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageReceived(GuildMessageReceivedEvent e) {
         if (!e.getGuild().getId().equals(Ustawienia.instance.bot.guildId) || e.getAuthor().isBot()) return;
         if (e.getChannel().getParent() != null && e.getChannel().getParent().getId().equals("539819570358386698"))
@@ -132,7 +133,7 @@ public class ChatListener extends ListenerAdapter {
         checkMessage(e.getMember(), e.getMessage(), karyJSON, caseDao, modLog);
     }
 
-    @Override
+    @Subscribe
     public void onGuildMessageUpdate(GuildMessageUpdateEvent e) {
         if (!e.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         if (UserUtil.getPermLevel(e.getAuthor()).getNumer() >= PermLevel.CHATMOD.getNumer()) return;

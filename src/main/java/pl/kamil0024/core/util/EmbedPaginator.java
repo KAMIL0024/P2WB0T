@@ -20,13 +20,11 @@
 package pl.kamil0024.core.util;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,15 +112,7 @@ public class EmbedPaginator {
     }
 
     private void clear() {
-        try {
-            MessageBuilder mb = new net.dv8tion.jda.api.MessageBuilder();
-            mb.setEmbeds(botMsg.getEmbeds().get(0));
-            mb.setContent(botMsg.getContentRaw());
-            mb.setActionRows(Collections.emptyList());
-            botMsg.editMessage(mb.build()).complete();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        botMsg.editMessageComponents(Collections.emptyList()).complete();
     }
 
     private MessageEmbed render(int page) {

@@ -30,8 +30,8 @@ def versionObj = new Version(major: 2)
 version = "$versionObj".toString()
 mainClassName = 'pl.kamil0024.core.Main'
 
-def jdaVersion = '4.3.0_277'
-def alphaTest = '1b6677e'
+def jdaVersion = '4.3.0_296'
+def alphaTest = null
 
 repositories {
     maven { url = uri("https://dl.bintray.com/sedmelluq/com.sedmelluq") }

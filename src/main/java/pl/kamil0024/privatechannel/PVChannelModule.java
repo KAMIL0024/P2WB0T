@@ -1,5 +1,6 @@
 package pl.kamil0024.privatechannel;
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -9,29 +10,29 @@ import pl.kamil0024.privatechannel.listeners.PVChannelListener;
 
 public class PVChannelModule implements Modul {
 
+    private final PVChannelListener listener;
+    private final EventBus eventBus;
+
     @Getter
     private final String name = "pvchannels";
 
     @Getter @Setter
     private boolean start = false;
 
-    private final ShardManager api;
-    private final PVChannelListener listener;
-
-    public PVChannelModule(ShardManager api, SocketManager socketManager) {
-        this.api = api;
+    public PVChannelModule(ShardManager api, SocketManager socketManager, EventBus eventBus) {
+        this.eventBus = eventBus;
         listener = new PVChannelListener(api, socketManager);
     }
 
     @Override
     public boolean startUp() {
-        api.addEventListener(listener);
+        eventBus.register(listener);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(listener);
+        eventBus.unregister(listener);
         return true;
     }
 

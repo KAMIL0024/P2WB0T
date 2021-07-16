@@ -19,6 +19,7 @@
 
 package pl.kamil0024.stats;
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -53,6 +54,7 @@ public class StatsModule implements Modul {
     private final StatsDao statsDao;
     private final MusicModule musicModule;
     private final NieobecnosciDao nieobecnosciDao;
+    private final EventBus eventBus;
 
     @Getter
     @Setter
@@ -63,7 +65,7 @@ public class StatsModule implements Modul {
 
     StatsListener statsListener;
 
-    public StatsModule(CommandManager commandManager, ShardManager api, EventWaiter eventWaiter, StatsDao statsDao, MusicModule musicModule, NieobecnosciDao nieobecnosciDao) {
+    public StatsModule(CommandManager commandManager, ShardManager api, EventWaiter eventWaiter, StatsDao statsDao, MusicModule musicModule, NieobecnosciDao nieobecnosciDao, EventBus eventBus) {
         this.commandManager = commandManager;
         this.api = api;
         this.eventWaiter = eventWaiter;
@@ -71,6 +73,7 @@ public class StatsModule implements Modul {
         this.statsCache = new StatsCache(statsDao);
         this.musicModule = musicModule;
         this.nieobecnosciDao = nieobecnosciDao;
+        this.eventBus = eventBus;
 
         for (StatsConfig statsConfig : statsDao.getAll()) {
             Statystyka s = StatsConfig.getStatsFromDay(statsConfig.getStats(), new BDate().getDateTime().getDayOfYear());
@@ -82,7 +85,7 @@ public class StatsModule implements Modul {
     @Override
     public boolean startUp() {
         this.statsListener = new StatsListener(this);
-        api.addEventListener(statsListener);
+        eventBus.register(statsListener);
         cmd = new ArrayList<>();
 
         cmd.add(new ChatmodStatsCommand(statsDao));
@@ -97,7 +100,7 @@ public class StatsModule implements Modul {
     @Override
     public boolean shutDown() {
         commandManager.unregisterCommands(cmd);
-        api.removeEventListener(statsListener);
+        eventBus.unregister(statsListener);
         setStart(false);
         return true;
     }

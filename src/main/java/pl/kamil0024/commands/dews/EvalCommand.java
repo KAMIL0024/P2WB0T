@@ -23,13 +23,10 @@ import com.google.gson.Gson;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.PermissionOverride;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.kamil0024.commands.listener.GiveawayListener;
-import pl.kamil0024.core.Ustawienia;
 import pl.kamil0024.core.command.Command;
 import pl.kamil0024.core.command.CommandContext;
 import pl.kamil0024.core.command.CommandExecute;
@@ -52,7 +49,6 @@ import pl.kamil0024.status.StatusModule;
 import pl.kamil0024.weryfikacja.WeryfikacjaModule;
 
 import java.awt.*;
-import java.util.stream.Collectors;
 
 public class EvalCommand extends Command {
 
@@ -123,7 +119,6 @@ public class EvalCommand extends Command {
 
     @Override
     public boolean execute(@NotNull CommandContext context) {
-        context.getShardManager().getUserById("501813238820896768").openPrivateChannel().complete().getIterableHistory().limit(1).stream().map(m -> m.getContentRaw()).collect(Collectors.toList());
         String kod = context.getArgsToString(0);
         if (context.getArgs().get(0) == null || kod.isEmpty()) throw new UsageException();
 

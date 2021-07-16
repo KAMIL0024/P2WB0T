@@ -19,6 +19,7 @@
 
 package pl.kamil0024.liczydlo;
 
+import com.google.common.eventbus.EventBus;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -27,6 +28,7 @@ import pl.kamil0024.core.module.Modul;
 public class LiczydloModule implements Modul {
 
     private final ShardManager api;
+    private final EventBus eventBus;
 
     @Getter
     private final String name = "liczydlo";
@@ -35,21 +37,22 @@ public class LiczydloModule implements Modul {
     private boolean start = false;
     private LiczydloListener liczydloListener;
 
-    public LiczydloModule(ShardManager api) {
+    public LiczydloModule(ShardManager api, EventBus eventBus) {
         this.api = api;
+        this.eventBus = eventBus;
     }
 
     @Override
     public boolean startUp() {
         this.liczydloListener = new LiczydloListener();
-        api.addEventListener(liczydloListener);
+        eventBus.register(liczydloListener);
         setStart(true);
         return true;
     }
 
     @Override
     public boolean shutDown() {
-        api.removeEventListener(liczydloListener);
+        eventBus.unregister(liczydloListener);
         setStart(false);
         return true;
     }

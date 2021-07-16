@@ -19,6 +19,7 @@
 
 package pl.kamil0024.rekrutacyjny.listeners;
 
+import com.google.common.eventbus.Subscribe;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -38,25 +39,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("ConstantConditions")
-public class SyncListener extends ListenerAdapter {
+public class SyncListener {
 
-    public SyncListener() {
-    }
+    public SyncListener() { }
 
-    @Override
+    @Subscribe
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.rekrutacyjny.guildId)) return;
         updateMember(event.getMember(), getDerpMember(event.getMember()));
     }
 
-    @Override
+    @Subscribe
     public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         updateMember(getRekruMember(event.getMember()), event.getMember());
     }
 
-    @Override
+    @Subscribe
     public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         Member rekru = getRekruMember(event.getMember());
@@ -81,6 +80,7 @@ public class SyncListener extends ListenerAdapter {
         roles.forEach(r -> rekru.getGuild().removeRoleFromMember(rekru, r).queue());
     }
 
+    @Subscribe
     public void onGuildMemberUpdateNickname(GuildMemberUpdateNicknameEvent event) {
         if (!event.getGuild().getId().equals(Ustawienia.instance.bot.guildId)) return;
         updateMember(getRekruMember(event.getMember()), event.getMember());

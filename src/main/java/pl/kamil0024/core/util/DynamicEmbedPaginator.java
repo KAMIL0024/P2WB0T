@@ -21,14 +21,11 @@ package pl.kamil0024.core.util;
 
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import java.util.Collections;
@@ -136,14 +133,7 @@ public class DynamicEmbedPaginator {
     }
 
     private void clear() {
-        if (!isPun) {
-            MessageBuilder mb = new MessageBuilder();
-            mb.setContent(botMsg.getContentRaw());
-            mb.setActionRows(ActionRow.of());
-            mb.setContent(botMsg.getContentRaw());
-            if (botMsg.getEmbeds().size() >= 1) mb.setEmbeds(botMsg.getEmbeds().get(0));
-            botMsg.editMessage(mb.build()).override(true).complete();
-        }
+        if (!isPun) botMsg.editMessageComponents(Collections.emptyList()).complete();
     }
 
     public boolean check(ButtonClickEvent event) {
